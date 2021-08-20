@@ -299,7 +299,7 @@
                      <div class="col-md-6 col-lg-12 col-sm-12">
                          <div class="contact-block">
                              <h2>Contact Form</h2>
-                             <form id="contactForm" method="POST" action="/resume.php">
+                             <form id="contactForm" method="POST" action="/index.php">
                                  <div class="row">
                                      <div class="col-md-6">
                                          <div class="form-group">
