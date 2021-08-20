@@ -1,52 +1,59 @@
 <?php
-
-#Receive user input
-$email_address = $_POST['email_address'];
-$feedback = $_POST['feedback'];
-
-#Filter user input
-function filter_email_header($form_field)
+if(!isset($_POST['submit']))
 {
-    return preg_replace('/[nr|!/<>^$%*&]+/', '', $form_field);
+	//This page should not be accessed directly. Need to submit the form.
+	echo "error; you need to submit the form!";
+}
+$name = $_POST['name'];
+$visitor_email = $_POST['email'];
+$message = $_POST['message'];
+
+//Validate first
+if(empty($name)||empty($visitor_email)) 
+{
+    echo "Name and email are mandatory!";
+    exit;
 }
 
-$email_address  = filter_email_header($email_address);
-
-#Send email
-$headers = "From: $email_addressn";
-$sent = mail('you@domain.com', 'Feedback Form Submission', $feedback, $headers);
-
-#Thank user or notify them of a problem
-if ($sent) {
-
-?><html>
-
-    <head>
-        <title>Thank You</title>
-    </head>
-
-    <body>
-        <h1>Thank You</h1>
-        <p>Thank you for your feedback.</p>
-    </body>
-
-    </html>
-<?php
-
-} else {
-
-?><html>
-
-    <head>
-        <title>Something went wrong</title>
-    </head>
-
-    <body>
-        <h1>Something went wrong</h1>
-        <p>We could not send your feedback. Please try again.</p>
-    </body>
-
-    </html>
-<?php
+if(IsInjected($visitor_email))
+{
+    echo "Bad email value!";
+    exit;
 }
-?>
+
+$email_from = 'tom@amazing-designs.com';//<== update the email address
+$email_subject = "New Form submission";
+$email_body = "You have received a new message from the user $name.\n".
+    "Here is the message:\n $message".
+    
+$to = "tom@amazing-designs.com";//<== update the email address
+$headers = "From: $email_from \r\n";
+$headers .= "Reply-To: $visitor_email \r\n";
+//Send the email!
+mail($to,$email_subject,$email_body,$headers);
+//done. redirect to thank-you page.
+header('Location: thank-you.html');
+
+
+// Function to validate against any email injection attempts
+function IsInjected($str)
+{
+  $injections = array('(\n+)',
+              '(\r+)',
+              '(\t+)',
+              '(%0A+)',
+              '(%0D+)',
+              '(%08+)',
+              '(%09+)'
+              );
+  $inject = join('|', $injections);
+  $inject = "/$inject/i";
+  if(preg_match($inject,$str))
+    {
+    return true;
+  }
+  else
+    {
+    return false;
+  }
+}
